@@ -1,5 +1,8 @@
 package com.iffomko.voiceAssistant.speech.types;
 
+/**
+ * <p>Перечисление, которое содержит доступные форматы для аудио</p>
+ */
 public enum YandexFormat {
     MP3("mp3"),
     OGGOPUS("oggopus"),
@@ -11,6 +14,10 @@ public enum YandexFormat {
         this.format = format;
     }
 
+    /**
+     * <p>Возвращает формат для аудио</p>
+     * @return формат
+     */
     public String getFormat() {
         return format;
     }

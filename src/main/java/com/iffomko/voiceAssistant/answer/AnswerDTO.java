@@ -1,28 +1,23 @@
 package com.iffomko.voiceAssistant.answer;
 
+import lombok.Data;
+
+@Data
 public class AnswerDTO {
-    private String byteAudio;
+    private String voice = null;
+    private String encode = null;
+    private String format = null;
+    private AnswerError error;
 
-    private String encode;
+    public AnswerDTO() {}
 
-    public AnswerDTO(String byteAudio, String encode) {
-        this.byteAudio = byteAudio;
+    public AnswerDTO(String byteAudio, String encode, String format) {
+        this.voice = byteAudio;
         this.encode = encode;
+        this.format = format;
     }
 
-    public String getByteAudio() {
-        return byteAudio;
-    }
-
-    public String getEncode() {
-        return encode;
-    }
-
-    public void setByteAudio(String byteAudio) {
-        this.byteAudio = byteAudio;
-    }
-
-    public void setEncode(String encode) {
-        this.encode = encode;
+    public AnswerDTO(AnswerError error) {
+        this.error = error;
     }
 }

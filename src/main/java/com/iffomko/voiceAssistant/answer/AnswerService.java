@@ -1,7 +1,8 @@
 package com.iffomko.voiceAssistant.answer;
 
 import com.iffomko.voiceAssistant.speech.YandexClient;
-import com.iffomko.voiceAssistant.speech.responses.RecognitionResponse;
+import com.iffomko.voiceAssistant.speech.data.RecognitionResponse;
+import com.iffomko.voiceAssistant.speech.types.YandexVoice;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -9,6 +10,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.Base64;
 
+/**
+ * <p>Класс бизнес-логики формирования ответа на вопрос</p>
+ */
 @Service
 @Component
 @Slf4j
@@ -48,7 +52,25 @@ public class AnswerService {
         return yandexClient.recognise(bytes).getResult();
     }
 
-    public String textToVoice(String text) {
-        return null;
+    /**
+     * <p>Переводит текст в звук</p>
+     * @param text - текст, который нужно озвучить
+     * @param format - формат выходного звука (mp3, oggopus, lpcm)
+     * @return - звук, закодированный в Base64
+     */
+    public String textToVoice(String text, String format) {
+        if (format != null) {
+            yandexClient.getSynthesis().setFormat(format);
+        }
+
+        yandexClient.getSynthesis().setVoice(YandexVoice.FILIPP);
+
+        byte[] voice = yandexClient.synthesis(text);
+
+        if (voice == null) {
+            return null;
+        }
+
+        return Base64.getEncoder().encodeToString(voice);
     }
 }
