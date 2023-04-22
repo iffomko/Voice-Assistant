@@ -40,8 +40,6 @@ public class YandexSynthesis {
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
         headers.set("Authorization", "Api-Key " + apiKey);
 
-        log.info(headers.toString());
-
         MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
         body.add("text", text);
         body.add("voice", voice.getVoice());

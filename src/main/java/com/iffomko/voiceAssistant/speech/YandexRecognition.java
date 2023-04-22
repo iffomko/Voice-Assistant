@@ -82,8 +82,6 @@ public class YandexRecognition {
         headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
         headers.set("Authorization", "Api-Key " + apiKey);
 
-        log.info(headers.toString());
-
         HttpEntity<byte[]> request = new HttpEntity<>(voice, headers);
 
         ResponseEntity<RecognitionResponse> response = null;

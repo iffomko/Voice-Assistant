@@ -1,6 +1,7 @@
 package com.iffomko.voiceAssistant.configurations;
 
 import com.iffomko.voiceAssistant.answer.AnswerService;
+import com.iffomko.voiceAssistant.openAI.AIService;
 import com.iffomko.voiceAssistant.speech.YandexClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -21,5 +22,12 @@ public class VoiceAssistantConfig {
         String apiKey = System.getenv("API_KEY");
 
         return new YandexClient(apiKey);
+    }
+
+    @Bean("AIService")
+    public AIService getAIService() {
+        String apiKey = System.getenv("OPEN_AI_API_KEY");
+
+        return new AIService(apiKey);
     }
 }
