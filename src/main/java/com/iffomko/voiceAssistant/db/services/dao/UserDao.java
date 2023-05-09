@@ -1,6 +1,5 @@
 package com.iffomko.voiceAssistant.db.services.dao;
 
-import com.iffomko.voiceAssistant.db.entities.Role;
 import com.iffomko.voiceAssistant.db.entities.User;
 import com.iffomko.voiceAssistant.db.repositories.UserRepository;
 import com.iffomko.voiceAssistant.db.services.UserService;
@@ -12,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-@Service
+@Service("UserDAO")
 @Transactional
 public class UserDao implements UserService {
     private final UserRepository repository;
@@ -23,7 +22,11 @@ public class UserDao implements UserService {
     }
 
     @Override
-    public void addUser(User user) {
+    public void addUser(User user) throws IllegalArgumentException {
+        if (repository.existsUserByUsername(user.getUsername())) {
+            throw new IllegalArgumentException("Такое имя пользователя уже существует");
+        }
+
         repository.save(user);
     }
 
@@ -50,29 +53,12 @@ public class UserDao implements UserService {
     }
 
     @Override
-    public List<Role> getUserRolesById(int id) {
-        Optional<User> optionalUser = repository.findById(id);
-
-        if (optionalUser.isEmpty()) {
-            return new ArrayList<>();
-        }
-
-        return optionalUser.get().getRoles();
+    public User findUserByUsername(String username) {
+        return repository.findByUsername(username).orElse(null);
     }
 
     @Override
     public List<User> getAllUsers() {
         return repository.findAll();
-    }
-
-    @Override
-    public void addUserRoleById(int id, Role role) {
-        Optional<User> optionalUser = repository.findById(id);
-
-        if (optionalUser.isEmpty()) {
-            return;
-        }
-
-        optionalUser.get().getRoles().add(role);
     }
 }

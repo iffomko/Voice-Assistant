@@ -8,10 +8,11 @@ import com.iffomko.voiceAssistant.controllers.services.AnswerService;
 import jakarta.annotation.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/answer")
+@RequestMapping("/api/v1/answer")
 public class AnswerController {
     @Resource(name = "AnswerService")
     private AnswerService answerService;
@@ -20,7 +21,7 @@ public class AnswerController {
      * <p>Контроллер, который отвечает за ответ на вопрос, который содержится в аудио</p>
      */
     @PostMapping(produces="application/json")
-    @ResponseBody()
+    @PreAuthorize("hasAuthority('get:answer')")
     public ResponseEntity<AnswerResponseDTO> getAnswer(@RequestBody AnswerRequestDTO body) {
         if (
                 body.getFormat() != null &&

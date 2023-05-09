@@ -2,6 +2,7 @@ package com.iffomko.voiceAssistant.db.entities;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import java.util.List;
 
@@ -21,11 +22,7 @@ public class User {
     private String surname;
     @Column(nullable = false)
     private String password;
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.DETACH)
-    @JoinTable(
-            name = "users_roles",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "role_id")
-    )
-    private List<Role> roles;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role")
+    private Role role;
 }
