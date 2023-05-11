@@ -9,15 +9,24 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-@Service("userDetailsServiceImpl")
-public class UserDetailsServiceImpl implements UserDetailsService {
+/**
+ * Реализует интерфейс для взаимодействия с <code>UserDetails</code> и умеет подгружать пользователя по его username
+ */
+@Service("userDetailsServiceDao")
+public class UserDetailsServiceDao implements UserDetailsService {
     private final UserService userService;
 
     @Autowired
-    public UserDetailsServiceImpl(@Qualifier("UserDAO") UserService userService) {
+    public UserDetailsServiceDao(@Qualifier("UserDAO") UserService userService) {
         this.userService = userService;
     }
 
+    /**
+     * Подгружает пользователя из базы данных по его username
+     * @param username username пользователя
+     * @return возвращает найденного пользователя (<code>UserDetails</code>)
+     * @throws UsernameNotFoundException выбрасывается если пользователь не существует
+     */
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = userService.findUserByUsername(username);

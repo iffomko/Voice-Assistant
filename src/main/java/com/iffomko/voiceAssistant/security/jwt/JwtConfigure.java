@@ -7,6 +7,9 @@ import org.springframework.security.web.DefaultSecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.stereotype.Component;
 
+/**
+ * Конфигурация для фильтров JWT токена
+ */
 @Component
 public class JwtConfigure extends SecurityConfigurerAdapter<DefaultSecurityFilterChain, HttpSecurity> {
     private final JwtTokenFilter jwtTokenFilter;
@@ -16,6 +19,9 @@ public class JwtConfigure extends SecurityConfigurerAdapter<DefaultSecurityFilte
         this.jwtTokenFilter = jwtTokenFilter;
     }
 
+    /**
+     * Встраивает фильтр JWT токена в цепочку фильтров безопасности по обработке запроса
+     */
     @Override
     public void configure(HttpSecurity httpSecurity) {
         httpSecurity.addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class);

@@ -16,6 +16,12 @@ public class SecurityUser implements UserDetails {
     private final List<SimpleGrantedAuthority> authorities;
     private final boolean isActive;
 
+    /**
+     * Инициализирует нужные поля
+     * @param username username пользователя
+     * @param password пароль пользователя
+     * @param authorities список предоставленных прав пользователю
+     */
     public SecurityUser(String username, String password, List<SimpleGrantedAuthority> authorities) {
         this.username = username;
         this.password = password;
@@ -58,6 +64,11 @@ public class SecurityUser implements UserDetails {
         return isActive;
     }
 
+    /**
+     * Конвертирует сущностью из базы данных <code>User</code> в класс <code>SecurityUser</code>
+     * @param user сущность из базы данных
+     * @return объект <code>SecurityUser</code>
+     */
     public static SecurityUser fromUser(User user) {
         return new SecurityUser(
                 user.getUsername(),

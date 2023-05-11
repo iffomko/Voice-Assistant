@@ -5,7 +5,11 @@ import com.iffomko.voiceAssistant.controllers.errors.AnswerError;
 import com.iffomko.voiceAssistant.controllers.data.AnswerRequestDTO;
 import com.iffomko.voiceAssistant.controllers.data.AnswerResponseDTO;
 import com.iffomko.voiceAssistant.controllers.services.AnswerService;
+import com.iffomko.voiceAssistant.security.jwt.JwtTokenProvider;
 import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -14,15 +18,27 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/v1/answer")
 public class AnswerController {
-    @Resource(name = "AnswerService")
-    private AnswerService answerService;
+    private final AnswerService answerService;
+    private final JwtTokenProvider jwtTokenProvider;
+
+    @Autowired
+    public AnswerController(
+            @Qualifier("answerService") AnswerService answerService,
+            JwtTokenProvider jwtTokenProvider
+    ) {
+        this.answerService = answerService;
+        this.jwtTokenProvider = jwtTokenProvider;
+    }
 
     /**
      * <p>Контроллер, который отвечает за ответ на вопрос, который содержится в аудио</p>
      */
     @PostMapping(produces="application/json")
     @PreAuthorize("hasAuthority('get:answer')")
-    public ResponseEntity<AnswerResponseDTO> getAnswer(@RequestBody AnswerRequestDTO body) {
+    public ResponseEntity<AnswerResponseDTO> getAnswer(
+            @RequestBody AnswerRequestDTO body,
+            HttpServletRequest httpServletRequest
+    ) {
         if (
                 body.getFormat() != null &&
                 !body.getFormat().equals(YandexFormat.OGGOPUS.getFormat()) &&
@@ -45,7 +61,7 @@ public class AnswerController {
         }
 
         String response = answerService.getAnswer(
-                body.getUserId(),
+                jwtTokenProvider.getUsername(jwtTokenProvider.resolveToken(httpServletRequest)),
                 body.getAudio(),
                 body.getFormat(),
                 body.getProfanityFilter()

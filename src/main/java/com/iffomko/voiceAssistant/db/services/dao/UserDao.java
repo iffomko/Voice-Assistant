@@ -11,6 +11,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Реализация интерфейса <code>UserService</code>, которая умеет работать с пользователями (<code>User</code>)
+ */
 @Service("UserDAO")
 @Transactional
 public class UserDao implements UserService {
@@ -21,6 +24,11 @@ public class UserDao implements UserService {
         this.repository = repository;
     }
 
+    /**
+     * Добавляет нового пользователя в систему
+     * @param user пользователь
+     * @throws IllegalArgumentException если пользователь уже существует
+     */
     @Override
     public void addUser(User user) throws IllegalArgumentException {
         if (repository.existsUserByUsername(user.getUsername())) {
@@ -30,6 +38,11 @@ public class UserDao implements UserService {
         repository.save(user);
     }
 
+    /**
+     * Удаляет существующего пользователя из системы по его id
+     * @param id уникальный идентификатор пользователя
+     * @return возвращает либо true в случае успешного удаления, либо false в случае неудачи
+     */
     @Override
     public boolean deleteUserById(int id) {
         if (!repository.existsById(id)) {
@@ -41,22 +54,29 @@ public class UserDao implements UserService {
         return true;
     }
 
+    /**
+     * Возвращает существующего пользователя по его id или возвращает null
+     * @param id уникальный идентификатор пользователя
+     * @return объект типа <code>User</code>
+     */
     @Override
     public User getUserById(int id) {
-        Optional<User> optionalUser = repository.findById(id);
-
-        if (optionalUser.isEmpty()) {
-            return null;
-        }
-
-        return optionalUser.get();
+        return repository.findById(id).orElse(null);
     }
 
+    /**
+     * Возвращает пользователя по его username или возвращает null
+     * @param username username пользователя
+     * @return объект типа <code>User</code>
+     */
     @Override
     public User findUserByUsername(String username) {
         return repository.findByUsername(username).orElse(null);
     }
 
+    /**
+     * Возвращает список всех пользователей
+     */
     @Override
     public List<User> getAllUsers() {
         return repository.findAll();

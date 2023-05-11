@@ -10,15 +10,29 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
+/**
+ * Фильтр, который спрашивает аутентификацию у всех запросов.
+ * Если её нет, то дальше он запрос не пропускает
+ */
 @Component
 public class JwtTokenFilter extends GenericFilter {
     private final JwtTokenProvider jwtTokenProvider;
 
+    /**
+     * Инициализирует поля нужными значениями
+     * @param jwtTokenProvider объект по работе с JWT токеном
+     */
     @Autowired
     public JwtTokenFilter(JwtTokenProvider jwtTokenProvider) {
         this.jwtTokenProvider = jwtTokenProvider;
     }
 
+    /**
+     * Этот методы вызывает при обработке цепочки фильтров
+     * @param servletRequest запрос, который проходит обработку фильтров
+     * @param servletResponse ответ на запрос, который проходит обработку фильтров
+     * @param filterChain цепочка фильтров
+     */
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
             throws IOException, ServletException

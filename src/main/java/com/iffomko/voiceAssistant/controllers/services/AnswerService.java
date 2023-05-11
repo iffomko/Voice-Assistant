@@ -7,9 +7,14 @@ import com.iffomko.voiceAssistant.APIs.openAI.types.OpenAIRole;
 import com.iffomko.voiceAssistant.APIs.speech.YandexClient;
 import com.iffomko.voiceAssistant.APIs.speech.data.RecognitionResponse;
 import com.iffomko.voiceAssistant.APIs.speech.types.YandexVoice;
+import com.iffomko.voiceAssistant.db.entities.User;
+import com.iffomko.voiceAssistant.db.services.UserService;
+import com.iffomko.voiceAssistant.security.jwt.JwtTokenProvider;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
@@ -21,11 +26,22 @@ import java.util.Base64;
 @Service
 @Component
 @Slf4j
+@Scope("prototype")
 public class AnswerService {
+    private final YandexClient yandexClient;
+    private final AIService chatGPT;
+    private final UserService userService;
+
     @Autowired
-    private YandexClient yandexClient;
-    @Autowired
-    private AIService chatGPT;
+    public AnswerService(
+            @Qualifier("yandexClient") YandexClient yandexClient,
+            @Qualifier("AIService") AIService chatGPT,
+            @Qualifier("UserDAO") UserService userService
+    ) {
+        this.yandexClient = yandexClient;
+        this.chatGPT = chatGPT;
+        this.userService = userService;
+    }
 
     /**
      * <p>В параметрах передается звук в формате Base64 и на выходе возвращается текстовое содержание этого звука</p>
@@ -83,20 +99,26 @@ public class AnswerService {
 
     /**
      * <p>Формирует ответ на вопрос пользователя</p>
-     * @param userId id пользователя
+     * @param username username текущего пользователя
      * @param voice аудио-сообщение, в котором содержится вопрос
      * @param format формат аудио-сообщения
      * @param profanityFilter фильтр
      * @return возвращает ответ на вопрос пользователя в виде аудиосообщения
      */
     public String getAnswer(
-            @NonNull Integer userId,
+            @NonNull String username,
             @NonNull String voice,
             @NonNull String format,
             @NonNull Boolean profanityFilter
     ) {
+        User user = userService.findUserByUsername(username);
+
+        if (user == null) {
+            return null;
+        }
+
         String text = audioToText(voice, format, profanityFilter);
-        ModelResponse response = chatGPT.ask(userId, text);
+        ModelResponse response = chatGPT.ask(user.getId(), text);
 
         if (response == null) {
             return null;

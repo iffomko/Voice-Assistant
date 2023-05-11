@@ -2,10 +2,10 @@ package com.iffomko.voiceAssistant.db.entities;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
-import java.util.List;
-
+/**
+ * Сущность по работе с таблицей в базе данных пользователей
+ */
 @Entity
 @Table(name = "users")
 @Data

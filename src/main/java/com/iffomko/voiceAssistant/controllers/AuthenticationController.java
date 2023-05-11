@@ -26,6 +26,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * Контроллер аутентификации. Именно здесь происходит авторизация и регистрация пользователей
+ */
 @RestController
 @RequestMapping("/api/v1/auth")
 @Slf4j
@@ -35,6 +38,14 @@ public class AuthenticationController {
     private final JwtTokenProvider jwtTokenProvider;
     private final PasswordEncoder passwordEncoder;
 
+    /**
+     * Конструктор, который инициализирует нужные поля объектами
+     * @param authenticationManager менеджер аутентификации
+     * @param userDao DAO объект, который отвечает за работу с пользователями (сущность <code>User</code>)
+     * @param jwtTokenProvider объект <code>JwtTokenProvider</code>, в нем содержится вся основная логика по работе
+     *                         с JWT токеном
+     * @param passwordEncoder любой объект реализующий интерфейс <code>PasswordEncoder</code>
+     */
     @Autowired
     public AuthenticationController(
             @Qualifier("authenticationManager") AuthenticationManager authenticationManager,
@@ -48,6 +59,11 @@ public class AuthenticationController {
         this.passwordEncoder = passwordEncoder;
     }
 
+    /**
+     * Эндпоинт, который отвечает за авторизацию пользователя в системе
+     * @param body объект <code>AuthenticationRequestDTO</code>, который содержит данные пользователя для входа в систему
+     * @return ответ <code>ResponseEntity<AuthenticationResponseDTO></code>
+     */
     @PostMapping("/login")
     public ResponseEntity<AuthenticationResponseDTO> authenticate(@RequestBody AuthenticationRequestDTO body) {
         try {
@@ -63,7 +79,6 @@ public class AuthenticationController {
 
             return ResponseEntity.ok(new AuthenticationResponseDTO(user.getUsername(), jwtToken, null));
         } catch (AuthenticationException e) {
-            e.printStackTrace();
             log.error(e.getMessage());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
                     new AuthenticationResponseDTO(
@@ -75,16 +90,24 @@ public class AuthenticationController {
         }
     }
 
+    /**
+     * Эндпоинт, который позволяет выйти со системы (по сути очищает SecurityContext и делает сессию не валидной)
+     * @param request сервлет запроса клиента
+     * @param response сервлет ответа для клиента
+     */
     @PostMapping("/logout")
     public void logout(HttpServletRequest request, HttpServletResponse response) {
         SecurityContextLogoutHandler securityContextLogoutHandler = new SecurityContextLogoutHandler();
         securityContextLogoutHandler.logout(request, response, null);
     }
 
+    /**
+     * Регистрирует пользователя в системе
+     * @param body объект <code>RegistrationRequestDTO</code>, который содержит данные для регистрации пользователя
+     * @return объект <code>ResponseEntity<RegistrationResponseDTO></code> ответа пользователю
+     */
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody RegistrationRequestDTO body) {
-        System.out.println(body);
-
+    public ResponseEntity<RegistrationResponseDTO> register(@RequestBody RegistrationRequestDTO body) {
         User user = userDao.findUserByUsername(body.getUsername());
 
         if (user != null) {

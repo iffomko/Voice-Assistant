@@ -17,6 +17,9 @@ import org.springframework.stereotype.Component;
 import java.util.Base64;
 import java.util.Date;
 
+/**
+ * Обеспечивает логику по взаимодействую с JWT токеном
+ */
 @Component
 public class JwtTokenProvider {
     private final UserDetailsService userDetailsService;
@@ -30,16 +33,29 @@ public class JwtTokenProvider {
     @Value("${jwt.issuer}")
     private String issuer;
 
+    /**
+     * @param userDetailsService сервис по работе с пользователями
+     */
     @Autowired
-    public JwtTokenProvider(@Qualifier("userDetailsServiceImpl") UserDetailsService userDetailsService) {
+    public JwtTokenProvider(@Qualifier("userDetailsServiceDao") UserDetailsService userDetailsService) {
         this.userDetailsService = userDetailsService;
     }
 
+    /**
+     * Этот метод вызывает для инициализации бина на этапе конфигурации.
+     * Здесь мы кодируем секретный ключ для шифрования JWT токена
+     */
     @PostConstruct
     protected void init() {
         secretKey = Base64.getEncoder().encodeToString(secretKey.getBytes());
     }
 
+    /**
+     * Создает токен для какого-то пользователя по его username и роли
+     * @param username username пользователя
+     * @param role его роль
+     * @return JWT токен для конкретного пользователя
+     */
     public String createToken(String username, Role role) {
         Claims claims = Jwts.claims();
         claims.setSubject(username);
@@ -57,6 +73,12 @@ public class JwtTokenProvider {
                 .compact();
     }
 
+    /**
+     * Проверяет JWT токен на корректность
+     * @param token сам токен
+     * @return возвращает true если токен валидный или false, если нет
+     * @throws JwtAuthenticationException выбрасывается если время токена вышла или он не валидный
+     */
     public boolean validateToken(String token) throws JwtAuthenticationException {
         try {
             Jws<Claims> claimsJws = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token);
@@ -66,6 +88,11 @@ public class JwtTokenProvider {
         }
     }
 
+    /**
+     * Возвращает аутентификацию для пользователя по его JWT токену
+     * @param token сам токен
+     * @return аутентификация пользователя
+     */
     public Authentication getAuthentication(String token) {
         UserDetails userDetails = userDetailsService.loadUserByUsername(getUsername(token));
 
@@ -76,10 +103,20 @@ public class JwtTokenProvider {
         );
     }
 
+    /**
+     * Возвращает username пользователя из JWT токена
+     * @param token сам токен
+     * @return username пользователя
+     */
     public String getUsername(String token) {
         return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody().getSubject();
     }
 
+    /**
+     * Возвращает токен из соответствующего заголовка в HTTP запросе клиента
+     * @param request HTTP запрос клиента
+     * @return JWT токен
+     */
     public String resolveToken(HttpServletRequest request) {
         return request.getHeader(authorizationHeader);
     }
