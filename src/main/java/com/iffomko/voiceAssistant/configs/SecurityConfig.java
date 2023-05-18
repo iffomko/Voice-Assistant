@@ -25,7 +25,7 @@ public class SecurityConfig {
     @Autowired
     public SecurityConfig(
             JwtConfigure jwtConfigure,
-            @Qualifier("userDetailsServiceImpl") UserDetailsService userDetailsService
+            @Qualifier("userDetailsServiceDao") UserDetailsService userDetailsService
     ) {
         this.userDetailsService = userDetailsService;
         this.jwtConfigure = jwtConfigure;
